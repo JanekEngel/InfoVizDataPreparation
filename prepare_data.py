@@ -6,10 +6,11 @@ from datetime import datetime
 from collections import defaultdict
 from pathlib import Path
 
-# --- Konfiguration ---
+
+TODAY_STR = datetime.today().strftime('%Y_%m_%d')
 URL = "https://github.com/robert-koch-institut/SARS-CoV-2-Infektionen_in_Deutschland/raw/refs/heads/main/Aktuell_Deutschland_SarsCov2_Infektionen.csv?download="
-INPUT_FILE = "Aktuell_Deutschland_SarsCov2_Infektionen_" + datetime.today().strftime('%Y_%m_%d') + ".csv"
-OUTPUT_FILE = "Bereinigte_Daten_" + datetime.today().strftime('%Y_%m_%d') + ".csv"
+INPUT_FILE = "Aktuell_Deutschland_SarsCov2_Infektionen_" + TODAY_STR + ".csv"
+OUTPUT_FILE = "Bereinigte_Daten_" + TODAY_STR + ".csv"
 LOG_FILE = "fehler.log"
 
 # Logging einrichten
@@ -144,14 +145,13 @@ def maxima_pro_geschlecht(csv_file):
                 raise
 
 def delete_old_files(prefix: str, directory: str = "."):
-    today_str = datetime.today().strftime('%Y_%m_%d')
     path = Path(directory)
     
     for file in path.iterdir():
         if (
             file.is_file()
             and file.name.startswith(prefix)
-            and today_str not in file.name
+            and TODAY_STR not in file.name
         ):
             try:
                 file.unlink()
