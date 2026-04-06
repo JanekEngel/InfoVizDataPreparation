@@ -32,6 +32,13 @@ def download_file(url, filename):
 
     except Exception as e:
         logging.error(f"Fehler beim Herunterladen der Datei: {e}")
+        # Delete partially downloaded file if it exists
+        if os.path.exists(filename):
+            try:
+                os.remove(filename)
+                logging.debug(f"Unvollständige Datei gelöscht: {filename}")
+            except Exception as delete_error:
+                logging.error(f"Fehler beim Löschen der Datei: {delete_error}")
         raise
 
 
@@ -95,6 +102,13 @@ def process_csv(input_file, output_file):
 
     except Exception as e:
         logging.error(f"Fehler bei der Verarbeitung der CSV: {e}")
+        # Delete partially converted file if it exists
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+                logging.debug(f"Unvollständige Datei gelöscht: {output_file}")
+            except Exception as delete_error:
+                logging.error(f"Fehler beim Löschen der Datei: {delete_error}")
         raise
 
 def maxima_pro_geschlecht(csv_file):
@@ -166,11 +180,17 @@ def delete_old_files(prefix: str, directory: str = "."):
 try:
     if not os.path.exists(INPUT_FILE):
         download_file(URL, INPUT_FILE)
+        logging.debug(f"Finished download: {TODAY_STR}")
         delete_old_files("Aktuell_Deutschland_SarsCov2_Infektionen")
+    else:
+        logging.debug("Skipped download, file is already present")
 
     if not os.path.exists(OUTPUT_FILE):
         process_csv(INPUT_FILE, OUTPUT_FILE)
+        logging.debug(f"Finished conversion: {TODAY_STR}")
         delete_old_files("Bereinigte_Daten")
+    else:
+        logging.debug("Skipped conversion, file is already present")
 
     maxima = maxima_pro_geschlecht(OUTPUT_FILE)
     
