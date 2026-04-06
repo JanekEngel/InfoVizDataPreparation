@@ -20,11 +20,16 @@ logging.basicConfig(filename=LOG_FILE, level=logging.ERROR,
 
 def download_file(url, filename):
     try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        with open(filename, 'wb') as f:
-            f.write(response.content)
-        print(f"Datei erfolgreich heruntergeladen: {filename}")
+        with requests.get(url, stream=True, timeout=30) as response:
+            response.raise_for_status()  # Raises HTTPError for bad responses
+
+            with open(filename, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive chunks
+                        file.write(chunk)
+
+        print(f"Download erfolgreich: {filename}")
+
     except Exception as e:
         logging.error(f"Fehler beim Herunterladen der Datei: {e}")
         raise
