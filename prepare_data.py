@@ -71,18 +71,30 @@ def process_csv(input_file, output_file):
                 if gender == "unbekannt":
                     gender = "null"
 
+                is_11 = county.startswith("11")
+                
+                if is_11:
+                    county = "11000"
+
                 infected, died, recovered = map(lambda x: int(x) if x else 0, cols[4:7])
 
-                key = (county, ageGroup, gender)
+                if is_11:
+                    key = (county, ageGroup, gender, date)
+                else:
+                    key = (county, ageGroup, gender)
                 # Nettowerte direkt vorbereiten
                 cases = infected - died - recovered
                 value = (cases, died, recovered)
 
                 # Datum gewechselt → Puffer direkt schreiben
-                if prevRefDate is not None and date != prevRefDate:
-                    for k, v in buffer.items():
-                        writer.writerow(list(k) + [prevRefDate] + list(v))
-                    buffer.clear()
+                if not is_11:
+                    if prevRefDate is not None and date != prevRefDate:
+                        for k, v in buffer.items():
+                            if len(k) == 3:
+                                writer.writerow(list(k) + [prevRefDate] + list(v))
+                            else:
+                                writer.writerow(list(k) + list(v))
+                        buffer.clear()
 
                 # Aggregation
                 if key in buffer:
