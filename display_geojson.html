@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>GeoJSON Map Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Initialize the map
+    const map = L.map('map').setView([51.1657, 10.4515], 6);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        referrerPolicy: 'strict-origin-when-cross-origin'
+    }).addTo(map);
+
+    // Relative path instead of external URL
+    const geojsonUrl = './GEOJson/VG250_KRS.json';
+
+    fetch(geojsonUrl)
+    .then(response => response.json())
+    .then(data => {
+        const geojsonLayer = L.geoJSON(data).addTo(map);
+        map.fitBounds(geojsonLayer.getBounds());
+    })
+    .catch(error => {
+        console.error('Error loading GeoJSON:', error);
+    });
+</script>
+
+</body>
+</html>
